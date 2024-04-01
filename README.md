@@ -8,11 +8,13 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tellus nibh, semper 
 Cosmo
 
 ## Como compilar e executar?
-Até decidirmos a estrutura final do projeto, para compilar e executar o projeto:
+Até decidirmos a estrutura final do projeto, para compilar e executar o programa:
 
-* Execute o comando `cd src` na pasta raiz
-* Compile o arquivo principal `.java` com o comando `javac Cosmo.java`
-* Execute o arquivo `.class` compilado com o comando `java Cosmo`, provendo um arquivo de entrada como argumento (ou não)
+- Execute o comando `cd src` na pasta raiz
+- Compile o arquivo principal `.java` com o comando `javac Cosmo.java`
+- Execute o arquivo `.class` com o comando `java Cosmo input`, onde `input` é o caminho para o arquivo de entrada que se deseja compilar
+  - Executar o compilador sem um arquivo de entrada resulta numa mensagem de erro
+  - Fornecer um arquivo ou diretório que não existe também resulta numa mensagem de erro
 
 ## Estrutura do projeto
 
