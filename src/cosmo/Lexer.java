@@ -184,9 +184,9 @@ public class Lexer {
             }
             current_spelling.setLength(0);
             current_kind = scan_token();
-            tokens.add(new Token(current_kind, current_spelling.toString(), current_column, current_line));
+            tokens.add(new Token(current_kind, current_spelling.toString(), current_column - current_spelling.length(), current_line));
         }
-        tokens.add(new Token(Token.EOF, "", current_column + 1, current_line));
+        tokens.add(new Token(Token.EOF, "", current_column, current_line));
         return tokens;
     }
 }
