@@ -18,18 +18,25 @@ Até decidirmos a estrutura final do projeto, para compilar e executar o program
 
 ## Estrutura do projeto
 
-*Temporário...*
-
 ```
 cosmo-compiler/
 ├── src/
+|   ├── cosmo/
+│   │   ├── Lexer.java
+│   │   ├── Token.java
+│   │   ├── *.class
 │   ├── Cosmo.java
 │   ├── Cosmo.class
-│   ├── *.java
-|   └── ...
 ├── test/
 ├── README.md
 ```
 
-- `src/` - Arquivos fonte do projeto. Temos que decidir se as outras classes vão ficar na mesma raiz do arquivo principal ou se vão para um diretório mais interno.
-- `test/` - Arquivos de teste do projeto. Por enquanto ficarão somente os arquivos de entrada que usaremos para testar o compilador.
+- `src/` - Arquivos fontes do projeto.
+  - `src/Cosmo.java` - Classe principal do projeto. Contém o método `main` e é responsável por chamar os métodos de 
+    análise léxica, sintática e semântica, além da geração de código objeto.
+  - `src/cosmo/` - Arquivos fonte das classes que implementam o backend do compilador.
+    - `src/cosmo/Lexer.java` - Implementação do analisador léxico.
+    - `src/cosmo/Token.java` - Enumeração dos tokens reconhecidos pelo analisador léxico, além de 
+      suas representações textuais.
+    - `src/cosmo/*.class` - Arquivos `.class` gerados pela compilação dos arquivos `.java` acima
+- `examples/` - Arquivos de teste do projeto.

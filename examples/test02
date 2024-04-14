@@ -1,0 +1,15 @@
+! This is a comment
+program HelloWorld;
+var
+    x: integer;
+    y: float;
+    z: float;
+    i: float;
+    j: bool;
+begin
+    x := 42;
+    y := 3.14;
+    i := 2.;
+    j := .75;
+    z := true;
+end.
