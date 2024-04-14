@@ -20,9 +20,14 @@ public class Cosmo {
             System.out.println("=> Analise lexica:");
             Lexer lexer = new Lexer(file_content);
             List<Token> tokens = lexer.scan();
+
+            // add flag pra definir se roda esse for ou não
             for (Token token : tokens) {
                 System.out.println(token.line + ":" + token.column + " " + Token.spellings[token.kind] + " " + token.spelling);
             }
+
+            // Análise sintática
+            // ...
         } else {
             System.out.println("cosmo: nenhum arquivo de entrada foi fornecido");
         }
