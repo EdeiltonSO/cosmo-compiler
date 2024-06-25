@@ -25,6 +25,7 @@ cosmo-compiler/
 |   ├── cosmo/
 │   │   ├── Lexer.java
 │   │   ├── Token.java
+|   |   ├── Parser.java
 │   │   ├── *.class
 │   ├── Cosmo.java
 │   ├── Cosmo.class
@@ -36,7 +37,12 @@ cosmo-compiler/
   - `src/Cosmo.java`: Classe principal do projeto. Contém o método `main` e é responsável por chamar os métodos de 
     análise léxica, sintática e semântica, além da geração de código objeto;
   - `src/cosmo/`: Arquivos fonte das classes que implementam o backend do compilador;
+    - `src/cosmo/AST`: Arquivos fonte das clases que implementam a árvore sintática abstrata (AST);
+      - `src/cosmo/AST/Node*.java`: Implementações dos nós da AST;
+      - `src/cosmo/AST/Printer.java`: Implementação do Visitor para a etapa de impressão da AST;
+      - `src/cosmo/AST/Visitor.java`: Interface para o padrão de projeto Visitor;   
     - `src/cosmo/Lexer.java`: Implementação do analisador léxico;
+    - `src/cosmo/Parser.java`: Implementação do analisador sintático;
     - `src/cosmo/Token.java`: Enumeração dos tokens reconhecidos pelo analisador léxico, além de 
       suas representações textuais;
     - `src/cosmo/*.class`: Arquivos `.class` gerados pela compilação dos arquivos `.java` acima;
