@@ -9,7 +9,7 @@ public class Printer implements Visitor{
     public void visitProgram(NodeProgram P) {
 
         if(P != null) {
-            System.out.println(P.name); //imprime o nome do programa
+            System.out.println(P.name);
             if(P.next != null) P.next.visit(this);
         }
 
@@ -19,8 +19,8 @@ public class Printer implements Visitor{
 
         if(A != null){
             System.out.print(A.identifier + " := ");
-            if(A.next != null) {    //essa verificação pode não ser necessária
-                A.next.visit(this);     //acessa o metodo de visitação de expressão
+            if(A.next != null) {
+                A.next.visit(this);
                 System.out.println("");
             }
             if(A.nextstatement != null) {
@@ -37,9 +37,9 @@ public class Printer implements Visitor{
 
             if(B != null){
 
-                if(B.declarations != null) {    //tem que chamar visit(this) e fazer a impressão para cada ponteiro da lista de ponteiros "declarations"
+                if(B.declarations != null) {
                     for ( NodeDeclaration dec  : B.declarations) {
-                        dec.visit(this); //errado pq essa porcaria é um array-list
+                        dec.visit(this);
                     }
                 }
 
@@ -56,18 +56,17 @@ public class Printer implements Visitor{
 
         if (C != null){
 
-            //printar "if exp1 the c1 else c2" ou em outra formatação?
             System.out.print("if ");
             if(C.conditional != null) {
-                C.conditional.visit(this);//expressão da condicional
+                C.conditional.visit(this);
                 System.out.println(" then ");
             }
             if(C.if_body != null) {
-                C.if_body.visit(this);  //comando realizado se a expressão for verdadeira
+                C.if_body.visit(this);
             }
             if(C.else_body != null) {
                 System.out.println("else ");
-                C.else_body.visit(this);//comando realizado se a expressão for falsa
+                C.else_body.visit(this);
             }
             if(C.nextstatement != null) {
                 C.nextstatement.visit(this);
@@ -82,7 +81,6 @@ public class Printer implements Visitor{
     // <declaration> ::= var <id> : <type>
     public void visitDeclaration(NodeDeclaration D) {
 
-        //O nó de declaração não possui outros nós como atributo, portanto, basta printar seus atributos Strings
         if(D != null){
             System.out.println("var " + D.identifier + " : " + D.type);
         }
@@ -91,15 +89,13 @@ public class Printer implements Visitor{
 
     public void visitExpressionOperator(NodeExpressionOperator Eo) {
 
-        //nenhum tratamento está sendo feito a respeito de expressões com parenteses.
         if(Eo != null){
 
-            Eo.left.visit(this);    //expressão à esquerda
-            System.out.print(" " + Eo.operator + " ");    //operador
-            Eo.right.visit(this);   //expressão à direita
+            Eo.left.visit(this);
+            System.out.print(" " + Eo.operator + " ");
+            Eo.right.visit(this);
 
         }
-        //System.out.println("");
     }
 
     public void visitIteration(NodeIteration It) {
@@ -109,11 +105,11 @@ public class Printer implements Visitor{
             System.out.print("while ( ");
             if(It != null) {
                 It.cond.visit(this);
-                System.out.println(" ) do ");   //expressão a ser avaliada
+                System.out.println(" ) do ");
             }
 
             if(It != null) {
-                It.body.visit(this);        //comando a ser executado
+                It.body.visit(this);
             }
             if(It.nextstatement != null) {
                 It.nextstatement.visit(this);
@@ -128,9 +124,8 @@ public class Printer implements Visitor{
 
         if(Obool != null)
         {
-            System.out.print(Obool.Bool_lit); //String que representa o booleano literal
+            System.out.print(Obool.Bool_lit);
         }
-        //System.out.println("");
 
     }
 
@@ -138,9 +133,8 @@ public class Printer implements Visitor{
 
         if(Oid != null){
 
-            System.out.print(Oid.identifier); //String que representa um identificador(nome) de variável
+            System.out.print(Oid.identifier);
         }
-        //System.out.println("");
 
     }
 
@@ -148,9 +142,8 @@ public class Printer implements Visitor{
 
         if(Oint != null) {
 
-            System.out.print(Oint.int_lit);   //String que representa um inteiro literal
+            System.out.print(Oint.int_lit);
         }
-        //System.out.println("");
 
     }
 
