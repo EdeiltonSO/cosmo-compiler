@@ -1,5 +1,7 @@
 package cosmo;
 
+import cosmo.AST.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Parser {
@@ -24,16 +26,22 @@ public class Parser {
         error_count++;
     }
 
-    private void accept(byte expected) {
+    private String accept(byte expected) {
+        String value = "";
         if (current_token.kind == expected) {
+            value = current_token.spelling;
             current_token = tokens.get(++current_pos);
         } else {
             report_error(current_token, Token.spellings[expected]);
         }
+        return value;
     }
 
-    private void accept_it() {
+    private String accept_it() {
+        String value = current_token.spelling;
         current_token = tokens.get(++current_pos);
+
+        return value;
     }
 
     private void expect_identifier() {
@@ -70,105 +78,154 @@ public class Parser {
     }
 
     // <program> ::= program <id> ; <body> .
-    private void parse_program() {
+    private NodeProgram parse_program() {
+
+        NodeProgram ASTProgram = new NodeProgram();
+      
         expect_identifier();
         if (current_token.spelling.equals("program")) {
             accept_it();
         } else {
             report_error(current_token, "program");
         }
-        accept(Token.IDENTIFIER);
+
+        ASTProgram.name = accept(Token.IDENTIFIER);
         accept(Token.SEMICOLON);
-        parse_body();
+
+        ASTProgram.next = parse_body();
         accept(Token.DOT);
+
+        return ASTProgram;
     }
 
     // <body> ::= (<declaration>;)* <compound-statement>
-    private void parse_body() {
+    private NodeBody parse_body() {
+        NodeBody ASTBody = new NodeBody();
+
+        ArrayList<NodeDeclaration> dec = new ArrayList<NodeDeclaration>();
+
         while (current_token.kind == Token.IDENTIFIER && !current_token.spelling.equals("begin")) {
-            parse_declaration();
+            dec.add(parse_declaration());
             accept(Token.SEMICOLON);
         }
+        ASTBody.declarations = dec;
 
-        parse_compound_statement();
+        ASTBody.next_compound_statement = parse_compound_statement();
+
+        return ASTBody;
     }
 
     // <declaration> ::= var <id> : <type>
-    private void parse_declaration() {
+    private NodeDeclaration parse_declaration() {
+        NodeDeclaration ASTDeclaration = new NodeDeclaration();
         expect_identifier();
+
         if (current_token.spelling.equals("var")) {
             accept_it();
         } else {
             report_error(current_token, "var");
         }
-        accept(Token.IDENTIFIER);
+
+        ASTDeclaration.identifier =  accept(Token.IDENTIFIER);
         accept(Token.COLON);
-        parse_type();
+
+        ASTDeclaration.type = parse_type();
+
+        return ASTDeclaration;
     }
 
     // <type> ::= integer | boolean
-    private void parse_type() {
+    private String parse_type() {
+
         expect_identifier();
         if (current_token.spelling.equals("integer")) {
-            accept_it();
+            return accept_it();
         } else if (current_token.spelling.equals("boolean")) {
-            accept_it();
+            return accept_it();
         } else {
             report_error(current_token, "integer or boolean");
+            return "";
         }
     }
 
     // <compound-statement> ::= begin <statement-list> end
-    private void parse_compound_statement() {
+    private NodeStatement parse_compound_statement() {
+        NodeStatement ASTStatement;
+
         expect_identifier();
         if (current_token.spelling.equals("begin")) {
             accept_it();
         } else {
             report_error(current_token, "begin");
         }
-        parse_statement_list();
+
+        ASTStatement = parse_statement_list();
         expect_identifier();
+
         if (current_token.spelling.equals("end")) {
             accept_it();
         } else {
             report_error(current_token, "end");
         }
+
+        return ASTStatement;
     }
 
     // <statement_list> ::= (<statement>;)*
-    private void parse_statement_list() {
-        while (current_token.kind == Token.IDENTIFIER) {
-            if (current_token.spelling.equals("end"))
-                break;
+    private NodeStatement parse_statement_list() {
+        NodeStatement ASTStatement;
 
-            parse_statement();
+        if(current_token.kind == Token.IDENTIFIER && !current_token.spelling.equals("end")) {
+            ASTStatement = parse_statement();
             accept(Token.SEMICOLON);
+
+            if(current_token.spelling.equals("end")){
+                ASTStatement.nextstatement = null;
+
+            }else
+            {
+                ASTStatement.nextstatement = parse_statement_list();
+            }
+
+            return ASTStatement;
+
         }
+
+        ASTStatement = null;
+        return ASTStatement;
     }
 
     // <statement> ::= <assignment> | <conditional> | <iteration> | <compound-statement>
-    private void parse_statement() {
+    private NodeStatement parse_statement() {
+        NodeStatement ASTStatement;
         expect_identifier();
         if (current_token.spelling.equals("if")) {
-            parse_conditional();
+            ASTStatement = parse_conditional();
+            return ASTStatement;
         } else if (current_token.spelling.equals("while")) {
-            parse_iteration();
+            ASTStatement = parse_iteration();
+            return ASTStatement;
         } else if (current_token.spelling.equals("begin")) {
-            parse_compound_statement();
+            ASTStatement = parse_compound_statement();
+            return ASTStatement;
         } else {
-            parse_assignment();
+            ASTStatement = parse_assignment();
+            return ASTStatement;
         }
     }
 
     // <conditional> ::= if <expression> then <statement> (else <statement> | ε)
-    private void parse_conditional() {
+    private NodeConditional parse_conditional() {
+
+        NodeConditional ASTConditional = new NodeConditional();
         expect_identifier();
         if (current_token.spelling.equals("if")) {
             accept_it();
         } else {
             report_error(current_token, "if");
         }
-        parse_expression();
+
+        ASTConditional.conditional = parse_expression();
 
         expect_identifier();
         if (current_token.spelling.equals("then")) {
@@ -176,77 +233,102 @@ public class Parser {
         } else {
             report_error(current_token, "then");
         }
-        parse_statement();
+      
+        ASTConditional.if_body = parse_statement();
 
         if (current_token.spelling.equals("else")) {
             accept_it();
-            parse_statement();
+            ASTConditional.else_body = parse_statement();
         }
+
+        return ASTConditional;
     }
 
     // <expression> ::=
     // <factor> (<op-mul> <factor>)* (<op-ad> <factor> (<op-mul> <factor>)*)* (<op-rel>  <factor> (<op-mul> <factor>)* (<op-ad> <factor> (<op-mul> <factor>)*)*)*
-    private void parse_expression() {
-        parse_factor();
+    private NodeExpression parse_expression() {
 
-        while (is_operator_mul()) {
+        NodeExpression ASTExp ;
+
+        ASTExp = parse_factor();
+
+        if (current_token.kind == Token.RIGHT_PAREN){
             accept_it();
-            parse_factor();
         }
 
-        while (is_operator_ad()) {
-            accept_it();
-            parse_factor();
-            while (is_operator_mul()) {
-                accept_it();
-                parse_factor();
-            }
+        if (is_operator_mul()) {
+            NodeExpressionOperator ASTExpOp = new NodeExpressionOperator();
+            ASTExpOp.operator = accept_it();
+            ASTExpOp.left = ASTExp;
+            ASTExpOp.right = parse_expression();
+            ASTExp = ASTExpOp;
+
+        } else if(is_operator_ad()) {
+            NodeExpressionOperator ASTExpOp = new NodeExpressionOperator();
+            ASTExpOp.operator = accept_it();
+            ASTExpOp.left = ASTExp;
+            ASTExpOp.right = parse_expression();
+            ASTExp = ASTExpOp;
+
+        } else if(is_operator_rel()) {
+            NodeExpressionOperator ASTExpOp = new NodeExpressionOperator();
+            ASTExpOp.operator = accept_it();
+            ASTExpOp.left = ASTExp;
+            ASTExpOp.right = parse_expression();
+            ASTExp = ASTExpOp;
+
         }
 
-        while (is_operator_rel()) {
-            accept_it();
-            parse_factor();
-
-            while (is_operator_mul()) {
-                accept_it();
-                parse_factor();
-            }
-
-            while (is_operator_ad()) {
-                accept_it();
-                parse_factor();
-                while (is_operator_mul()) {
-                    accept_it();
-                    parse_factor();
-                }
-            }
-        }
+        return ASTExp;
     }
 
     // <factor> ::= <id> | <literal> | ( <expression> )
-    private void parse_factor() {
-        if (current_token.kind == Token.IDENTIFIER) {
+    private NodeExpression parse_factor() {
+
+        NodeExpression ASTExp;
+
+        if (current_token.kind == Token.LEFT_PAREN) {
             accept_it();
-        } else if (current_token.kind == Token.INT_LITERAL || current_token.kind == Token.BOOL_LITERAL) {
-            accept_it();
-        } else if (current_token.kind == Token.LEFT_PAREN) {
-            accept_it();
-            parse_expression();
-            accept(Token.RIGHT_PAREN);
-        } else {
-            report_error(current_token, "<id>, <literal> or (");
         }
+
+        if (current_token.kind == Token.IDENTIFIER) {
+            NodeOperandIdentifier ASTOperand = new NodeOperandIdentifier();
+            ASTOperand.identifier = accept_it();
+            ASTExp = ASTOperand;
+            return ASTExp;
+
+        } else if (current_token.kind == Token.INT_LITERAL){
+            NodeOperandInt ASTOperand = new NodeOperandInt();
+            ASTOperand.int_lit = accept_it();
+            ASTExp = ASTOperand;
+            return ASTExp;
+
+        }else if (current_token.kind == Token.BOOL_LITERAL) {
+            NodeOperandBool ASTOperand = new NodeOperandBool();
+            ASTOperand.Bool_lit = accept_it();
+            ASTExp = ASTOperand;
+            return ASTExp;
+
+        }else {
+            report_error(current_token, "<id>, <literal> or (");
+            return null;
+        }
+
+
     }
 
     // <iteration> ::= while <expression> do <statement>
-    private void parse_iteration() {
+    private NodeIteration parse_iteration() {
+
+        NodeIteration ASTIteration = new NodeIteration();
+
         expect_identifier();
         if (current_token.spelling.equals("while")) {
             accept_it();
         } else {
             report_error(current_token, "while");
         }
-        parse_expression();
+        ASTIteration.cond = parse_expression();
 
         expect_identifier();
         if (current_token.spelling.equals("do")) {
@@ -254,21 +336,28 @@ public class Parser {
         } else {
             report_error(current_token, "do");
         }
-        parse_statement();
+
+        ASTIteration.body = parse_statement();
+
+        return ASTIteration;
     }
 
     // <assignment> := <id> := <expression>
-    private void parse_assignment() {
-        accept(Token.IDENTIFIER);
+    private NodeAssignment parse_assignment() {
+        NodeAssignment ASTAssignment = new NodeAssignment();
+        ASTAssignment.identifier = accept(Token.IDENTIFIER);
         accept(Token.ASSIGN);
-        parse_expression();
+        ASTAssignment.next = parse_expression();
+        return ASTAssignment;
     }
 
-    public void parse() {
-        parse_program();
+    public NodeProgram parse() {
+        NodeProgram ASTProgram = parse_program();
 
         if (current_token.kind != Token.EOF) {
             report_error(current_token, Token.spellings[Token.EOF]);
         }
+
+        return ASTProgram;
     }
 }

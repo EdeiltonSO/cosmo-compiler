@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import cosmo.Token;
 import cosmo.Lexer;
 import cosmo.Parser;
+import cosmo.AST.*;
 
 public class Cosmo {
     public static void main(String[] args) {
@@ -26,16 +27,21 @@ public class Cosmo {
             // Análise sintática
             System.out.println("\n=> Analise sintatica:");
             Parser parser = new Parser(tokens);
-            parser.parse();
+            NodeProgram ASTRoot = parser.parse();
 
             if (parser.error_count == 0) {
                 System.out.println("Analise sintatica finalizada com exito.");
             } else {
                 System.exit(parser.error_count);
             }
+
+            Printer printer = new Printer();
+            printer.print(ASTRoot);
+
         } else {
             System.out.println("cosmo: nenhum arquivo de entrada foi fornecido");
         }
+
     }
 
     public static String read_file(String filename) {
