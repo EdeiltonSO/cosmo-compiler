@@ -11,4 +11,11 @@ begin
     i := 2;
     j := 1;
     z := true;
+    if j then
+        y := 5
+    else
+        y := x - 5;
+    while i > 0 do
+        x := x + y * z;
+        i := i - 1;
 end.
