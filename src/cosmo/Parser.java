@@ -1,7 +1,6 @@
 package cosmo;
 
 import cosmo.AST.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +34,6 @@ public class Parser {
         } else {
             report_error(current_token, Token.spellings[expected]);
         }
-
         return value;
     }
 
@@ -80,17 +78,17 @@ public class Parser {
     }
 
     // <program> ::= program <id> ; <body> .
-    //talvez program não deva retornar nada, ou então o seu retorno só será utilizado em uma etapa futura
     private NodeProgram parse_program() {
 
         NodeProgram ASTProgram = new NodeProgram();
-
+      
         expect_identifier();
         if (current_token.spelling.equals("program")) {
             accept_it();
         } else {
             report_error(current_token, "program");
         }
+
         ASTProgram.name = accept(Token.IDENTIFIER);
         accept(Token.SEMICOLON);
 
@@ -98,12 +96,9 @@ public class Parser {
         accept(Token.DOT);
 
         return ASTProgram;
-
-
     }
 
     // <body> ::= (<declaration>;)* <compound-statement>
-    //não estou gostando desse array list
     private NodeBody parse_body() {
         NodeBody ASTBody = new NodeBody();
 
@@ -120,7 +115,6 @@ public class Parser {
         return ASTBody;
     }
 
-
     // <declaration> ::= var <id> : <type>
     private NodeDeclaration parse_declaration() {
         NodeDeclaration ASTDeclaration = new NodeDeclaration();
@@ -131,13 +125,13 @@ public class Parser {
         } else {
             report_error(current_token, "var");
         }
+
         ASTDeclaration.identifier =  accept(Token.IDENTIFIER);
         accept(Token.COLON);
 
         ASTDeclaration.type = parse_type();
 
         return ASTDeclaration;
-
     }
 
     // <type> ::= integer | boolean
@@ -178,30 +172,17 @@ public class Parser {
     }
 
     // <statement_list> ::= (<statement>;)*
-  /*  private void parse_statement_list() {
-        NodeStatement ASTStatement;
-
-        while (current_token.kind == Token.IDENTIFIER) {
-            if (current_token.spelling.equals("end"))
-                break;
-
-            parse_statement();
-            accept(Token.SEMICOLON);
-        }
-    } */
-
     private NodeStatement parse_statement_list() {
         NodeStatement ASTStatement;
 
         if(current_token.kind == Token.IDENTIFIER && !current_token.spelling.equals("end")) {
             ASTStatement = parse_statement();
             accept(Token.SEMICOLON);
-           // ASTStatement.next = parse_statement_list();
 
             if(current_token.spelling.equals("end")){
                 ASTStatement.nextstatement = null;
 
-            }else   //considerando que seja outro identificador e não um erro.
+            }else
             {
                 ASTStatement.nextstatement = parse_statement_list();
             }
@@ -210,19 +191,16 @@ public class Parser {
 
         }
 
-        //se não achar pelo menos um identificador, retorna null. No entanto, o que significa não achar um identificador?
         ASTStatement = null;
         return ASTStatement;
-
-
     }
 
     // <statement> ::= <assignment> | <conditional> | <iteration> | <compound-statement>
     private NodeStatement parse_statement() {
         NodeStatement ASTStatement;
         expect_identifier();
-        if (current_token.spelling.equals("if")) {  //modificação aqui, (guardar identificadores?)
-            ASTStatement = parse_conditional();   //add
+        if (current_token.spelling.equals("if")) {
+            ASTStatement = parse_conditional();
             return ASTStatement;
         } else if (current_token.spelling.equals("while")) {
             ASTStatement = parse_iteration();
@@ -231,7 +209,7 @@ public class Parser {
             ASTStatement = parse_compound_statement();
             return ASTStatement;
         } else {
-            ASTStatement = parse_assignment();      //add
+            ASTStatement = parse_assignment();
             return ASTStatement;
         }
     }
@@ -240,7 +218,6 @@ public class Parser {
     private NodeConditional parse_conditional() {
 
         NodeConditional ASTConditional = new NodeConditional();
-
         expect_identifier();
         if (current_token.spelling.equals("if")) {
             accept_it();
@@ -256,6 +233,7 @@ public class Parser {
         } else {
             report_error(current_token, "then");
         }
+      
         ASTConditional.if_body = parse_statement();
 
         if (current_token.spelling.equals("else")) {
@@ -321,13 +299,13 @@ public class Parser {
 
         } else if (current_token.kind == Token.INT_LITERAL){
             NodeOperandInt ASTOperand = new NodeOperandInt();
-            ASTOperand.int_lit = accept_it();       //so funciona se o tipo for String
+            ASTOperand.int_lit = accept_it();
             ASTExp = ASTOperand;
             return ASTExp;
 
         }else if (current_token.kind == Token.BOOL_LITERAL) {
             NodeOperandBool ASTOperand = new NodeOperandBool();
-            ASTOperand.Bool_lit = accept_it();      //so funciona se o tipo for String
+            ASTOperand.Bool_lit = accept_it();
             ASTExp = ASTOperand;
             return ASTExp;
 
@@ -358,6 +336,7 @@ public class Parser {
         } else {
             report_error(current_token, "do");
         }
+
         ASTIteration.body = parse_statement();
 
         return ASTIteration;
@@ -374,7 +353,6 @@ public class Parser {
 
     public NodeProgram parse() {
         NodeProgram ASTProgram = parse_program();
-
 
         if (current_token.kind != Token.EOF) {
             report_error(current_token, Token.spellings[Token.EOF]);

@@ -37,6 +37,7 @@ public class Cosmo {
 
             Printer printer = new Printer();
             printer.print(ASTRoot);
+
         } else {
             System.out.println("cosmo: nenhum arquivo de entrada foi fornecido");
         }
