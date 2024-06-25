@@ -1,7 +1,3 @@
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Scanner;
 import java.util.List;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,6 +5,7 @@ import java.nio.file.Path;
 
 import cosmo.Token;
 import cosmo.Lexer;
+import cosmo.Parser;
 
 public class Cosmo {
     public static void main(String[] args) {
@@ -27,7 +24,15 @@ public class Cosmo {
             }
 
             // Análise sintática
-            // ...
+            System.out.println("\n=> Analise sintatica:");
+            Parser parser = new Parser(tokens);
+            parser.parse();
+
+            if (parser.error_count == 0) {
+                System.out.println("Analise sintatica finalizada com exito.");
+            } else {
+                System.exit(parser.error_count);
+            }
         } else {
             System.out.println("cosmo: nenhum arquivo de entrada foi fornecido");
         }
